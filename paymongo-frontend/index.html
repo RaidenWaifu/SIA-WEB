@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -8,17 +8,18 @@
 <body>
 <header class="topbar">
     <h1>SIA1 Merch Store</h1>
-    <span class="cart-link">🛒 Cart (<span id="cart-count">0</span>)</span>
+    <span class="cart-link">&#128722; Cart (<span id="cart-count" data-cy="cart-count">0</span>)</span>
 </header>
 
-<div id="banner" class="banner" style="display:none;"></div>
+<div id="banner" class="banner" data-cy="banner" style="display:none;"></div>
+<p id="checkout-error" data-cy="checkout-error" style="display:none; color:#b91c1c; text-align:center; font-weight:bold;"></p>
 
 <main class="grid" id="product-grid">
     <!-- Product cards are rendered by app.js from the PRODUCTS list -->
 </main>
 
 <footer>
-    <p>Backend: <code id="api-status">checking connection…</code></p>
+    <p>Backend: <code id="api-status">checking connection&hellip;</code></p>
 </footer>
 
 <script src="app.js"></script>

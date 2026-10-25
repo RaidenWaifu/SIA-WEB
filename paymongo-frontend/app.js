@@ -1,9 +1,6 @@
 // ==== Configuration ====
-// Base URL of your Spring Boot backend (must match server.port in application.properties)
 const API_BASE = "http://localhost:8080/api";
 
-// Product catalog — hardcoded for now since there's no products table/endpoint yet.
-// (Happy to wire this up to a real /api/products endpoint + MySQL table later.)
 const PRODUCTS = [
     { id: 1, name: "SIA1 Class T-Shirt", description: "Official SIA1 cotton t-shirt.", priceCentavos: 35000 },
     { id: 2, name: "SIA1 Tote Bag", description: "Canvas tote bag with class logo.", priceCentavos: 15000 },
@@ -12,7 +9,7 @@ const PRODUCTS = [
 
 // ==== Cart (kept in localStorage so it survives a page refresh) ====
 function getCart() {
-    return JSON.parse(localStorage.getItem("cart") || "{}"); // { productId: quantity }
+    return JSON.parse(localStorage.getItem("cart") || "{}");
 }
 function saveCart(cart) {
     localStorage.setItem("cart", JSON.stringify(cart));
@@ -37,8 +34,20 @@ function showBanner(msg) {
     setTimeout(() => (el.style.display = "none"), 2000);
 }
 
+// Error message that stays on screen (the banner disappears after 2 seconds)
+function showError(msg) {
+    const el = document.getElementById("checkout-error");
+    el.textContent = msg;
+    el.style.display = "block";
+}
+function clearError() {
+    const el = document.getElementById("checkout-error");
+    el.textContent = "";
+    el.style.display = "none";
+}
+
 function formatPesos(centavos) {
-    return "₱" + (centavos / 100).toFixed(2);
+    return "\u20B1" + (centavos / 100).toFixed(2);
 }
 
 // ==== Render product grid ====
@@ -48,11 +57,12 @@ function renderProducts() {
     PRODUCTS.forEach((p) => {
         const card = document.createElement("div");
         card.className = "card";
+        card.setAttribute("data-cy", "product-card");
         card.innerHTML = `
-            <h3>${p.name}</h3>
+            <h3 data-cy="product-name">${p.name}</h3>
             <p class="desc">${p.description}</p>
-            <p class="price">${formatPesos(p.priceCentavos)}</p>
-            <button data-id="${p.id}" class="add-btn">Add to Cart</button>
+            <p class="price" data-cy="product-price">${formatPesos(p.priceCentavos)}</p>
+            <button data-id="${p.id}" class="add-btn" data-cy="add-to-cart">Add to Cart</button>
         `;
         grid.appendChild(card);
     });
@@ -64,6 +74,7 @@ function renderProducts() {
 
 // ==== Checkout: POST cart to Spring Boot, then redirect to PayMongo ====
 async function checkout() {
+    clearError();
     const cart = getCart();
     const items = Object.entries(cart).map(([id, qty]) => {
         const product = PRODUCTS.find((p) => p.id === Number(id));
@@ -71,7 +82,7 @@ async function checkout() {
     });
 
     if (items.length === 0) {
-        showBanner("Your cart is empty.");
+        showError("Your cart is empty.");
         return;
     }
 
@@ -83,16 +94,17 @@ async function checkout() {
         });
 
         if (!res.ok) {
-            const err = await res.json();
-            showBanner("Checkout failed: " + (err.detail || err.error || res.statusText));
+            let err = {};
+            try { err = await res.json(); } catch (e) {}
+            showError("Checkout failed: " + (err.detail || err.error || res.statusText));
             return;
         }
 
         const order = await res.json();
-        localStorage.removeItem("cart"); // order has been created, cart is now "spent"
-        window.location.href = order.checkoutUrl; // send browser to PayMongo's hosted page
+        localStorage.removeItem("cart");
+        window.location.href = order.checkoutUrl;
     } catch (e) {
-        showBanner("Could not reach backend at " + API_BASE + ". Is Spring Boot running?");
+        showError("Could not reach backend at " + API_BASE + ". Is Spring Boot running?");
         console.error(e);
     }
 }
@@ -102,6 +114,7 @@ function addCheckoutButton() {
     const btn = document.createElement("button");
     btn.textContent = "Checkout";
     btn.className = "checkout-btn-small";
+    btn.setAttribute("data-cy", "checkout-button");
     btn.addEventListener("click", checkout);
     document.querySelector(".topbar").appendChild(btn);
 }
@@ -110,12 +123,12 @@ function addCheckoutButton() {
 async function checkApiStatus() {
     const statusEl = document.getElementById("api-status");
     try {
-        const res = await fetch(`${API_BASE}/orders/PING-CHECK`); // any GET works; 404 still proves backend is up
+        const res = await fetch(`${API_BASE}/orders/PING-CHECK`);
         statusEl.textContent = res.status === 404
             ? "connected to " + API_BASE
             : "responded with status " + res.status;
     } catch {
-        statusEl.textContent = "NOT reachable at " + API_BASE + " — start the Spring Boot app";
+        statusEl.textContent = "NOT reachable at " + API_BASE + " - start the Spring Boot app";
         statusEl.style.color = "crimson";
     }
 }

@@ -1,0 +1,27 @@
+{
+  "name": "paymongo-full-project",
+  "version": "1.0.0",
+  "description": "Two separate folders, matching your phase plan:",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:e2e": "cypress run",
+    "serve": "http-server paymongo-frontend -p 5500 -a 127.0.0.1 -c-1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RaidenWaifu/SIA-WEB.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/RaidenWaifu/SIA-WEB/issues"
+  },
+  "homepage": "https://github.com/RaidenWaifu/SIA-WEB#readme",
+  "devDependencies": {
+    "cypress": "^16.2.0",
+    "http-server": "^14.1.1"
+  }
+}
