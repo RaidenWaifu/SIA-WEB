@@ -1,4 +1,6 @@
-﻿describe('Checkout', () => {
+﻿const API = 'http://localhost:8080/api'
+
+describe('Checkout', () => {
   function addFirstItemAndCheckout() {
     cy.visit('/')
     cy.get('[data-cy=add-to-cart]').first().click()
@@ -33,5 +35,6 @@
     cy.get('[data-cy=checkout-error]').should('be.visible').and('contain', 'Checkout failed')
     cy.location('hostname').should('eq', '127.0.0.1')
     cy.get('[data-cy=cart-count]').should('have.text', '1')
+    cy.request(`${API}/test/orders/count?status=paid`).its('body.count').should('eq', 0)
   })
 })
