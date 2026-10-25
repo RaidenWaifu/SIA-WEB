@@ -76,3 +76,14 @@ your server the moment payment succeeds) fixes that — happy to build a
 Success/cancel pages, an admin dashboard (list/filter orders in MySQL), and
 security hardening (input validation, rate limiting, hiding stack traces) are
 still open — let me know which one you want to tackle next.
+
+## Running the E2E tests
+
+1. Start MySQL and create the `paymongo_shop` database (see `paymongo-spring/order_items.sql`).
+2. Copy `paymongo-spring/src/main/resources/application.properties.example` to `application.properties`. Fill in your database user and password and your own PayMongo test secret key (`sk_test_...`). Keep `app.test-mode=true`.
+3. Start the backend: run `PaymongoShopApplication.java` (port 8080).
+4. Install the tools once: `npm install`
+5. Start the shop page: `npm run serve` (http://127.0.0.1:5500)
+6. In another terminal, run the tests: `npm run test:e2e`
+
+The tests reset the orders table before each test, so use a database you do not need.
