@@ -1,3 +1,5 @@
 paymongo-spring/src/main/resources/application.properties
 paymongo-spring/target/
 node_modules/
+cypress/videos/
+cypress/screenshots/
